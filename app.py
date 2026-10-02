@@ -224,7 +224,7 @@ div[class*="st-key-tile"] {{ background: {SURFACE}; border: 1px solid rgba(0,34,
 .secnav a:hover {{ color: {NAVY} !important; }}
 
 /* section headings */
-.sec-head {{ margin: 26px 0 4px; }}
+.sec-head {{ margin: 26px 0 4px; scroll-margin-top: 72px; }}
 .sec-head h2 {{ color: {NAVY}; font-size: 20px; font-weight: 700; margin: 0; padding: 0; scroll-margin-top: 70px; }}
 .sec-head p {{ color: {INK_2}; margin: 4px 0 0; font-size: 14px; max-width: 72ch; }}
 .card-title {{ color: {NAVY}; font-size: 15px; font-weight: 700; margin: 0; }}
@@ -371,7 +371,9 @@ def show(fig: go.Figure) -> None:
 
 
 def section_head(anchor: str, title: str, text: str) -> None:
-    H(f'<div class="sec-head"><h2 id="{anchor}">{title}</h2><p>{text}</p></div>')
+    # Streamlit replaces the id of every heading with its own slug, so the anchor
+    # that the top menu links to sits on the wrapper div instead of the <h2>.
+    H(f'<div class="sec-head" id="{anchor}"><h2>{title}</h2><p>{text}</p></div>')
 
 
 # ---------------------------------------------------------------------------
