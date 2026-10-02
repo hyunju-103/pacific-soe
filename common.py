@@ -166,9 +166,31 @@ def usd(v: float) -> str:
 # ---------------------------------------------------------------------------
 # CSS
 # ---------------------------------------------------------------------------
-# Streamlit's own top menu (st.navigation(position="top")): white bar, the
-# current page in navy with a blue underline.
+# Tab bar under the title band: always visible (it wraps onto a second line on
+# phones instead of folding away), sticks to the top while scrolling, and the
+# current page gets a navy label with a blue underline (see app.py).
 TOPNAV_CSS = f"""
+header[data-testid="stHeader"] {{ background: {BG}; }}
+div[data-testid="stLayoutWrapper"]:has(> div.st-key-tabbar) {{ position: sticky; top: 3.75rem; z-index: 50; }}
+div.st-key-tabbar {{ background: {SURFACE}; border: 1px solid {LINE}; border-radius: 4px; padding: 0 16px;
+  column-gap: 26px !important; row-gap: 0 !important; box-shadow: 0 2px 6px rgba(0,34,68,.06); }}
+div.st-key-tabbar [data-testid="stElementContainer"] {{ margin: 0 !important; }}
+div.st-key-tabbar a[data-testid="stPageLink-NavLink"] {{ background: transparent !important; border-radius: 0;
+  border-bottom: 3px solid transparent; padding: 11px 0 8px; margin: 0; min-height: 0; line-height: 1.4; }}
+div.st-key-tabbar a[data-testid="stPageLink-NavLink"] p {{ color: {INK_2}; font-weight: 600; font-size: 14px; }}
+div.st-key-tabbar a[data-testid="stPageLink-NavLink"]:hover p {{ color: {NAVY}; }}
+div[data-testid="stPageLink"] p {{ color: {BLUE_STRONG}; font-weight: 600; }}
+"""
+
+
+def tab_css(current_key: str) -> str:
+    """Underline the tab of the page being shown."""
+    return (f"<style>div.st-key-tab_{current_key} a[data-testid='stPageLink-NavLink'] "
+            f"{{ border-bottom-color: {BLUE} !important; }} "
+            f"div.st-key-tab_{current_key} a[data-testid='stPageLink-NavLink'] p {{ color: {NAVY} !important; }}</style>")
+
+
+CSS = f"""
 header[data-testid="stHeader"] {{ background: {SURFACE}; border-bottom: 1px solid {LINE}; }}
 a[data-testid="stTopNavLink"] {{ background: transparent !important; border-radius: 0; border-bottom: 3px solid transparent; padding-left: 4px; padding-right: 4px; margin-right: 14px; }}
 a[data-testid="stTopNavLink"] p {{ color: {INK_2}; font-weight: 600; font-size: 14px; }}
@@ -183,7 +205,7 @@ CSS = f"""
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 html, body, .stApp, .stMarkdown, button, input, textarea {{ font-family: {FONT}; }}
 .stApp {{ background: {BG}; }}
-[data-testid="stMainBlockContainer"], .block-container {{ max-width: 1240px; padding-top: 5rem; padding-bottom: 3rem; }}
+[data-testid="stMainBlockContainer"], .block-container {{ max-width: 1240px; padding-top: 4.25rem; padding-bottom: 3rem; }}
 [data-testid="stMarkdownContainer"] p {{ margin-bottom: 0; }}
 div[data-testid="stMarkdownContainer"] p.note {{ font-size: 12.5px; line-height: 1.55; color: {INK_2}; margin-top: 6px; }}
 div[data-testid="stMarkdownContainer"] p.card-sub {{ font-size: 12.5px; line-height: 1.5; color: {MUTED}; margin: 2px 0 6px; }}

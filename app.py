@@ -13,7 +13,7 @@ Run it
     pip install -r requirements.txt
     streamlit run app.py
 
-Each menu item at the top is its own page with its own address:
+Each tab under the title is its own page with its own address:
     /            Overview
     /sectors     Sector scorecard
     /countries   Country monitor
@@ -22,14 +22,14 @@ Each menu item at the top is its own page with its own address:
 
 Files
 -----
-    app.py       this file: page setup, top menu, title band, footer
+    app.py       this file: page setup, title band, tab bar, footer
     common.py    colours, data from the note, formulas, CSS, chart builders
     views/       one file per page
 """
 
 import streamlit as st
 
-from common import CSS, H, PRESETS
+from common import CSS, H, PRESETS, tab_css
 
 st.set_page_config(page_title="Pacific SOE Fiscal Risk Monitor", layout="wide")
 H(CSS)
@@ -47,16 +47,19 @@ for key, value in DEFAULTS.items():
     st.session_state[key] = st.session_state[key]
 
 # ---------------------------------------------------------------------------
-# Pages and the top menu
+# Pages
 # ---------------------------------------------------------------------------
-pages = [
-    st.Page("views/overview.py", title="Overview", url_path="overview", default=True),
-    st.Page("views/sectors.py", title="Sectors", url_path="sectors"),
-    st.Page("views/countries.py", title="Countries", url_path="countries"),
-    st.Page("views/calculator.py", title="Early warning calculator", url_path="calculator"),
-    st.Page("views/triggers.py", title="Trigger rules", url_path="triggers"),
-]
-current = st.navigation(pages, position="top")
+# (key, page): the key names the tab's container so the current tab can be underlined
+pages = {
+    "overview": st.Page("views/overview.py", title="Overview", url_path="overview", default=True),
+    "sectors": st.Page("views/sectors.py", title="Sectors", url_path="sectors"),
+    "countries": st.Page("views/countries.py", title="Countries", url_path="countries"),
+    "calculator": st.Page("views/calculator.py", title="Early warning calculator", url_path="calculator"),
+    "triggers": st.Page("views/triggers.py", title="Trigger rules", url_path="triggers"),
+}
+# Streamlit's own menu is hidden; the tab bar below the title band replaces it.
+current = st.navigation(list(pages.values()), position="hidden")
+current_key = next(k for k, p in pages.items() if p.url_path == current.url_path)
 
 # ---------------------------------------------------------------------------
 # Title band (the long description only on the Overview page)
@@ -68,6 +71,7 @@ if current.title == "Overview":
              "presets and trigger rules are illustrative. This is an independent example, not an official World "
              "Bank product.</p>")
 H(f"""
+{tab_css(current_key)}
 <div class="band">
   <div class="eyebrow">Fiscal risk management · Example dashboard</div>
   <h1>Pacific SOE Fiscal Risk Monitor</h1>
@@ -81,6 +85,12 @@ H(f"""
   </div>
 </div>
 """)
+
+# Tab bar: every tab always visible; clicking one opens that page
+with st.container(key="tabbar", horizontal=True, gap=None):
+    for key, page in pages.items():
+        with st.container(key=f"tab_{key}", width="content"):
+            st.page_link(page, label=page.title)
 
 current.run()
 
