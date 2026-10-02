@@ -87,4 +87,21 @@ current.run()
 # ---------------------------------------------------------------------------
 # Footer (same on every page)
 # ---------------------------------------------------------------------------
-FOOTER_PLACEHOLDER = None
+H("""
+<div class="foot"><h2>Sources and caveats</h2><ul>
+<li>Source: Francois, Blanco, Chowdhury, De Weerdt and Vasquez Ahued, <i>Between Necessity and Risk: State Owned
+Enterprises and Fiscal Risk in the Pacific Islands</i>, World Bank policy note. All figures come from the note's
+text, figures and annexes.</li>
+<li>Z″ is the emerging-market model with the 3.25 constant removed, following Eidelman (1995). Distress &lt; 1.1,
+grey zone 1.1–2.6, safe &gt; 2.6.</li>
+<li>The Z″ analysis covers 38 of 83 SOEs (46%), and only 14 SOEs have 2024 statements. Some balance sheet data were
+estimated.</li>
+<li>The transfer regression uses 99 observations, a coefficient of −0.767 (significant at 10%), and country and
+sector fixed effects. The note's Figure 10 value (21.9%) includes fixed effects and differs slightly from the plain
+Equation (1) result (21.8%).</li>
+<li>Inconsistency in the note: the summary says 5 of 11 utility SOEs are in distress, while the main text says 5 of
+9 countries. This dashboard follows the main text (countries).</li>
+<li>Calculator presets, the illustrative thresholds and the trigger rules are hypothetical values for
+demonstration.</li>
+</ul></div>
+""")
