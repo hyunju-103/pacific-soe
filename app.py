@@ -18,7 +18,7 @@ Each tab under the title is its own page with its own address:
     /sectors     Sector scorecard
     /countries   Country monitor
     /calculator  Early warning calculator
-    /triggers    Trigger rules
+    /recommendations  Policy recommendations
 
 Files
 -----
@@ -39,8 +39,8 @@ H(CSS)
 # Streamlit forgets a widget's value when its page is not shown, so every key
 # is copied back onto itself here, on every page run.
 # ---------------------------------------------------------------------------
-DEFAULTS = {k: PRESETS["median"][k] for k in ("x1", "x2", "x3", "x4", "assets")}
-DEFAULTS.update(preset="median", dis=0.0, fx=0.0, highlight="All")
+DEFAULTS = {k: PRESETS["median"][k] for k in ("x1", "x2", "x3", "x4")}  # Table 1 sample medians
+DEFAULTS.update(assets=None, preset="median", dis=0.0, fx=0.0, highlight="All")
 for key, value in DEFAULTS.items():
     if key not in st.session_state:
         st.session_state[key] = value
@@ -55,7 +55,7 @@ pages = {
     "sectors": st.Page("views/sectors.py", title="Sectors", url_path="sectors"),
     "countries": st.Page("views/countries.py", title="Countries", url_path="countries"),
     "calculator": st.Page("views/calculator.py", title="Early warning calculator", url_path="calculator"),
-    "triggers": st.Page("views/triggers.py", title="Trigger rules", url_path="triggers"),
+    "recommendations": st.Page("views/recommendations.py", title="Recommendations", url_path="recommendations"),
 }
 # Streamlit's own menu is hidden; the tab bar below the title band replaces it.
 current = st.navigation(list(pages.values()), position="hidden")
@@ -66,14 +66,13 @@ current_key = next(k for k, p in pages.items() if p.url_path == current.url_path
 # ---------------------------------------------------------------------------
 intro = ""
 if current.title == "Overview":
-    intro = ("<p>An example Early Warning System built from the figures published in the World Bank policy note "
-             "<i>Between Necessity and Risk</i>. The note does not publish SOE-level names, so the calculator "
-             "presets and trigger rules are illustrative. This is an independent example, not an official World "
-             "Bank product.</p>")
+    intro = ("<p>An Early Warning System dashboard built from the figures published in the World Bank policy "
+             "note <i>Between Necessity and Risk</i>. Every figure on this page comes from the note. Independently "
+             "made; not an official World Bank product.</p>")
 H(f"""
 {tab_css(current_key)}
 <div class="band">
-  <div class="eyebrow">Fiscal risk management · Example dashboard</div>
+  <div class="eyebrow">Fiscal risk management · Policy note dashboard</div>
   <h1>Pacific SOE Fiscal Risk Monitor</h1>
   {intro}
   <div class="meta">
@@ -81,7 +80,7 @@ H(f"""
     <span>Z″ computed for <b>38 SOEs</b> (2021–2024)</span>
     <span>KPI period <b>2020–2024</b></span>
     <span>Financials excluded</span>
-    <span class="flag">▲ Illustrative values are flagged</span>
+    <span>Source <b>World Bank policy note</b></span>
   </div>
 </div>
 """)
@@ -111,7 +110,8 @@ sector fixed effects. The note's Figure 10 value (21.9%) includes fixed effects 
 Equation (1) result (21.8%).</li>
 <li>Inconsistency in the note: the summary says 5 of 11 utility SOEs are in distress, while the main text says 5 of
 9 countries. This dashboard follows the main text (countries).</li>
-<li>Calculator presets, the illustrative thresholds and the trigger rules are hypothetical values for
-demonstration.</li>
+<li>Scorecard ratings use only thresholds stated in the note. The calculator applies the note's published
+coefficients (Z″ weights, Equation (1) and the shock estimates) to the ratios entered, starting from the sample
+medians in Table 1.</li>
 </ul></div>
 """)

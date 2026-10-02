@@ -10,10 +10,10 @@ with left:
     with st.container(key="card_hero"):
         H(f"""
         <div class="hero-label">SOEs in distress or the grey zone</div>
-        <div class="hero-value">39%<small>15 of 38 · about 4 in 10</small></div>
+        <div class="hero-value">39%<small>29% distress + 10% grey zone · 15 of 38 · nearly 4 in 10</small></div>
         <div class="zonebar">
-          <div style="width:60.5%;background:{GOOD};border-radius:2px 0 0 2px"></div>
-          <div style="width:10.5%;background:{WARN}"></div>
+          <div style="width:61%;background:{GOOD};border-radius:2px 0 0 2px"></div>
+          <div style="width:10%;background:{WARN}"></div>
           <div style="width:29%;background:{CRIT};border-radius:0 2px 2px 0"></div>
         </div>
         <div class="zonelegend">
@@ -26,9 +26,9 @@ with left:
         """)
 with right:
     tiles = [
-        ("Predicted transfers to distressed SOEs", "21.9%", "of total assets / year",
-         "8.4% for healthy SOEs · about 2.6× (Z″ 5th vs 75th percentile)"),
-        ("Utilities debt-to-EBITDA", "13.6", "years", "Distress threshold is 6 · highest of any sector"),
+        ("Predicted grants to the most distressed SOEs", "21.9%", "of total assets / year",
+         "Z″ at the 5th percentile (−4.7) · 8.4% at the 75th percentile (12.78), so more than double (Figure 10)"),
+        ("Utilities debt-to-EBITDA", "13.6", "years", "Above the note's distress threshold of 6 · highest of any sector"),
         ("Countries with distressed utilities", "5", "of 9", "Grey zone 2 · safe 2 (2022–24 Z″)"),
         ("Utilities return on assets", "0.4%", "2022–24", "Down from 3.4% in 2020–21, during the recovery"),
     ]
@@ -37,7 +37,7 @@ with right:
         for col, (label, value, unit, sub) in zip(cols, row):
             with col, st.container(key=f"tile_{label[:12].replace(' ', '_')}"):
                 H(f"""
-                <div class="tile-top"><span class="tile-label">{label}</span>{chip("alert")}</div>
+                <div class="tile-top"><span class="tile-label">{label}</span></div>
                 <div class="tile-value">{value}<small>{unit}</small></div>
                 <div class="tile-sub">{sub}</div>
                 """)

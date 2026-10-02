@@ -3,7 +3,8 @@
 from common import *  # noqa: F401,F403  (colours, data, formulas, helpers, charts)
 
 section_head("Sector scorecard",
-             "Each KPI is marked good, watch or alert by GICS sector. Sectors with the most alerts come first.")
+             "Sector averages from the note. A rating appears only where the note states a threshold. "
+             "Sectors with the most alerts come first.")
 # default "All" is set in app.py so the choice survives switching pages
 picked = st.segmented_control("Highlight a sector", ["All", "UTIL", "DISC", "ENRG", "INDUS", "COMMS", "STPL", "REIT"],
                               key="highlight")
@@ -11,29 +12,31 @@ highlight = "ALL" if picked in (None, "All") else picked
 
 with st.container(key="card_scorecard"):
     rows_html = []
-    ranked = sorted(SECTORS, key=lambda r: -sum(r[k].get("st") == "alert" for k in METRIC_KEYS))
+    ranked = sorted(SECTORS, key=lambda r: -sum(r[k].get("st") == "alert" for k in RATED_KEYS))
     for r in ranked:
-        alerts = sum(r[k].get("st") == "alert" for k in METRIC_KEYS)
+        alerts = sum(r[k].get("st") == "alert" for k in RATED_KEYS)
         dim = ' class="dim"' if highlight not in ("ALL", r["s"]) else ""
-        pips = "".join(f'<span class="{"on" if i < alerts else ""}"></span>' for i in range(6))
+        pips = "".join(f'<span class="{"on" if i < alerts else ""}"></span>' for i in range(len(RATED_KEYS)))
         fn = f'<span class="fn">{r["fn"]}</span>' if r.get("fn") else ""
         cells = "".join(metric_cell(r[k]) for k in METRIC_KEYS)
         rows_html.append(
             f'<tr{dim}><td class="name"><span class="code">{r["s"]}</span><span class="nm">{r["name"]}</span>{fn}</td>'
             f'<td>{r["n"]}</td>{metric_cell(r["gdp"])}{cells}'
-            f'<td><span class="pips">{pips}</span><b>{alerts} / 6</b></td></tr>')
+            f'<td><span class="pips">{pips}</span><b>{alerts} / {len(RATED_KEYS)}</b></td></tr>')
     H(f"""
     <div class="tbl-wrap"><table class="dash"><thead><tr>
       <th>Sector</th><th>SOEs</th><th>Footprint<br>assets/GDP</th><th>ROA (%)<br>2022–24</th>
-      <th>ROE (%)<br>2022–24</th><th>Current ratio<br>2022–24</th><th>Debt/assets<br>2020–24</th>
-      <th>Debt/EBITDA (yrs)<br>2020–24</th><th>Z″<br>2021–24</th><th>Alerts</th>
+      <th>ROE (%)<br>2022–24</th><th>Current ratio<br>2020–24</th><th>Debt/assets<br>2020–24</th>
+      <th>Debt/EBITDA (yrs)<br>2020–24</th><th>Z″<br>2021–24</th><th>Alerts<br>of 4 rated</th>
     </tr></thead><tbody>{"".join(rows_html)}</tbody></table></div>
     <div class="legend-row">
-      {chip("ok")} {chip("watch")} {chip("alert")}
-      <span class="lt"><b>Thresholds from the note</b>: Z″ &lt; 1.1 alert, 1.1–2.6 watch · debt/EBITDA &gt; 6 alert,
-      4–6 watch · debt/assets &gt; 0.5 alert, 0.5 watch</span>
-      <span class="lt"><b>Illustrative thresholds</b>: ROA below 1% alert, drop of 2 pp or more watch · negative ROE
-      alert, falling ROE watch · current ratio below 1 alert, below 3.5 or halved watch</span>
+      {chip("ok", "Safe / low")} {chip("watch", "Grey zone / elevated")} {chip("alert", "Distress / breach")}
+      <span class="lt"><b>Ratings use only thresholds stated in the note</b>: Z″ below 1.1 distress (■), 1.1–2.6 grey
+      zone (▲), above 2.6 safe (●) · debt/EBITDA above 6 is the distress threshold (■), above 4 elevated leverage (▲),
+      below 4 low to moderate (●); negative EBITDA means debt cannot be serviced from operations (■) · current ratio
+      below 1 means current liabilities exceed current assets (■) · debt/assets above 0.5 means more than half of
+      assets are debt-financed (■). The note sets no thresholds for footprint, ROA or ROE, so these are shown without
+      a rating.</span>
       <span class="lt">— not reported in the note · DISC is a single SOE in the Marshall Islands</span>
     </div>
     """)
@@ -51,7 +54,7 @@ with c1, st.container(key="card_zchart"):
       '13.6 years, the score most likely reflects an asset-heavy balance sheet and <b>overstates</b> resilience.</p>')
 with c2, st.container(key="card_dumbbell"):
     H(f'<p class="card-title">Change in profitability</p><p class="card-sub">COVID shock (2020–21) to recovery '
-      f'(2022–24) · sectors the note reports</p><div class="legend-row" style="margin:0 0 4px">'
+      f'(2022–24) · sectors with a value for both periods in the note</p><div class="legend-row" style="margin:0 0 4px">'
       f'<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid {PREV}">'
       f'</span> 2020–21</span><span><span style="display:inline-block;width:11px;height:11px;border-radius:50%;'
       f'background:{BLUE}"></span> 2022–24</span></div>')

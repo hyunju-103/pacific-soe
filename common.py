@@ -38,37 +38,40 @@ FONT = "Open Sans, Segoe UI, system-ui, -apple-system, Roboto, sans-serif"
 # DATA (all figures from the policy note)
 # ---------------------------------------------------------------------------
 # Each metric: v = displayed value, d = small detail line, st = status
-# (ok / watch / alert). A missing st means "not rated".
+# (ok / watch / alert) from a threshold stated in the note. No st = not rated.
 SECTORS = [
     dict(s="UTIL", name="Utilities", n=13, gdp=dict(v="14%"),
-         roa=dict(v="0.4", d="3.4 → 0.4", st="alert"), roe=dict(v="−12", d="6 → −12", st="alert"),
-         cr=dict(v="2.4–3.3", d="full period 2.8", st="watch"), da=dict(v="0.4", st="ok"),
-         de=dict(v="13.6", st="alert"), z=dict(v="5.0", d="likely overstated", st="ok")),
+         roa=dict(v="0.4", d="3.4 → 0.4"), roe=dict(v="−12", d="6 → −12"),
+         cr=dict(v="2.4–3.3", d="range across periods · full period 2.8"), da=dict(v="0.4"),
+         de=dict(v="13.6", st="alert"), z=dict(v="5.0", d="note: interpret with caution", st="ok")),
     dict(s="DISC", name="Consumer Disc.", n=1, fn="1 SOE", gdp=dict(v="≈1%"),
-         roa=dict(v="—"), roe=dict(v="−62", d="2020–21 · 2022–24 n/a", st="alert"),
-         cr=dict(v="≈0", st="alert"), da=dict(v="0.9", st="alert"),
+         roa=dict(v="—"), roe=dict(v="—", d="2020–21: −62 · 2022–24 not given"),
+         cr=dict(v="≈0", d="2022–24", st="alert"), da=dict(v="0.9", st="alert"),
          de=dict(v="n/a", d="negative EBITDA", st="alert"), z=dict(v="≈−5", st="alert")),
     dict(s="ENRG", name="Energy", n=3, gdp=dict(v="16%"),
-         roa=dict(v="1.3", d="5.0 → 1.3", st="watch"), roe=dict(v="—"),
-         cr=dict(v="2.7–3.5", d="range across periods", st="watch"), da=dict(v="0.3", st="ok"),
+         roa=dict(v="1.3", d="5.0 → 1.3"), roe=dict(v="—"),
+         cr=dict(v="2.7–3.5", d="range across periods"), da=dict(v="≈0.3"),
          de=dict(v="6.5", st="alert"), z=dict(v="7.5", st="ok")),
     dict(s="INDUS", name="Industrials", n=24, gdp=dict(v="—"),
-         roa=dict(v="—"), roe=dict(v="−7", d="−1 → −7", st="alert"),
-         cr=dict(v="≈6", d="stable", st="ok"), da=dict(v="0.3", st="ok"),
+         roa=dict(v="—"), roe=dict(v="−7", d="−1 → −7"),
+         cr=dict(v="≈6", d="stable"), da=dict(v="≈0.3"),
          de=dict(v="—"), z=dict(v="33.2", st="ok")),
     dict(s="COMMS", name="Communications", n=11, gdp=dict(v="—"),
-         roa=dict(v="≈1.6", d="stable at ~1.5–1.6", st="ok"), roe=dict(v="7", d="15 → 7", st="watch"),
-         cr=dict(v="6.2", d="21.5 → 6.2", st="watch"), da=dict(v="0.3", st="ok"),
+         roa=dict(v="≈1.5–1.6", d="stable"), roe=dict(v="7", d="≈15 → 7"),
+         cr=dict(v="6.2", d="21.5 → 6.2"), da=dict(v="≈0.3"),
          de=dict(v="4.8", st="watch"), z=dict(v="11.0", st="ok")),
     dict(s="STPL", name="Consumer Staples", n=12, gdp=dict(v="≈1%"),
-         roa=dict(v="8.1", d="7.3 → 8.1", st="ok"), roe=dict(v="—"),
-         cr=dict(v="≈35", d="stable", st="ok"), da=dict(v="0.5", st="watch"),
+         roa=dict(v="8.1", d="7.3 → 8.1"), roe=dict(v="—"),
+         cr=dict(v="≈35", d="stable"), da=dict(v="0.5"),
          de=dict(v="—"), z=dict(v="12.3", st="ok")),
     dict(s="REIT", name="Real Estate", n=7, gdp=dict(v="—"),
          roa=dict(v="—"), roe=dict(v="—"),
-         cr=dict(v="≈26", d="stable", st="ok"), da=dict(v="0.3", st="ok"),
+         cr=dict(v="≈26", d="stable"), da=dict(v="≈0.3"),
          de=dict(v="0.4", st="ok"), z=dict(v="37.5", st="ok")),
 ]
+# Only these KPIs are rated: the note gives thresholds for them (Z″ zones,
+# debt/EBITDA bands, current ratio below 1, debt/assets above 0.5).
+RATED_KEYS = ["cr", "da", "de", "z"]
 METRIC_KEYS = ["roa", "roe", "cr", "da", "de", "z"]
 
 Z_BY_SECTOR = [  # 2021–24 average Z″, 38 SOEs
@@ -79,7 +82,7 @@ Z_BY_SECTOR = [  # 2021–24 average Z″, 38 SOEs
 ]
 ROA = [  # (sector, 2020–21, 2022–24, note)
     ("STPL", 7.3, 8.1, ""), ("ENRG", 5.0, 1.3, ""), ("UTIL", 3.4, 0.4, ""),
-    ("COMMS", 1.5, 1.6, "Note reports ~1.5–1.6%"),
+    # COMMS is left out: the note gives only "around 1.5–1.6%", not a value per period
 ]
 ROE = [
     ("COMMS", 15, 7, "2020–21 reported as ~15%"), ("UTIL", 6, -12, ""), ("INDUS", -1, -7, ""),
@@ -97,25 +100,26 @@ COUNTRIES = [
     dict(c="KIR", name="Kiribati", own="Dual", eco="Sovereign rent", n=22, gdp="max above 50%",
          gr=dict(v="16% → 15%"), uz=dict(v="53.3", st="ok")),
     dict(c="MHL", name="Marshall Islands", own="Centralized", eco="Sovereign rent", n=9, gdp="—",
-         gr=dict(v="38% → 35%", st="alert"), uz=dict(v="1.7", st="watch", d="full period 4.7")),
+         gr=dict(v="38% → 35%", d="most transfer-dependent"), uz=dict(v="1.7", st="watch", d="full period 4.7")),
     dict(c="FSM", name="Micronesia", own="Unknown", eco="Sovereign rent", n=5, gdp="—",
-         gr=dict(v="↑ rising", st="watch"), uz=dict(v="—")),
+         gr=dict(v="↑ increase", d="warrants close monitoring"), uz=dict(v="—")),
     dict(c="NRU", name="Nauru", own="Dual", eco="Sovereign rent&#42;", n=1, gdp="about 30%",
          gr=dict(v="—"), uz=dict(v="—")),
     dict(c="WSM", name="Samoa", own="Centralized", eco="Tourism &amp; remittance", n=4, gdp="—",
-         gr=dict(v="↑ rising", st="watch"), uz=dict(v="near/below threshold", st="alert")),
+         gr=dict(v="↑ increase", d="warrants close monitoring"),
+         uz=dict(v="not given", d="below or near distress threshold")),
     dict(c="TON", name="Tonga", own="Centralized", eco="Tourism &amp; remittance", n=5, gdp="—",
-         gr=dict(v="↓ falling"), uz=dict(v="near/below threshold", st="alert")),
+         gr=dict(v="↓ decline"), uz=dict(v="not given", d="below or near distress threshold")),
     dict(c="VUT", name="Vanuatu", own="Decentralized", eco="Tourism &amp; remittance", n=6, gdp="—",
          gr=dict(v="—"), uz=dict(v="—")),
     dict(c="SLB", name="Solomon Islands", own="Dual", eco="Tourism &amp; remittance&#42;", n=8, gdp="—",
          gr=dict(v="—"), uz=dict(v="10.2", st="ok")),
     dict(c="FJI", name="Fiji", own="Centralized", eco="Not classified", n=12, gdp="—",
-         gr=dict(v="—"), uz=dict(v="near/below threshold", st="alert")),
+         gr=dict(v="—"), uz=dict(v="not given", d="below or near distress threshold")),
     dict(c="PLW", name="Palau", own="Decentralized", eco="Not classified", n=3, gdp="about 21%",
-         gr=dict(v="↓ falling"), uz=dict(v="0.8", st="alert")),
+         gr=dict(v="↓ decline"), uz=dict(v="0.8", st="alert")),
     dict(c="PNG", name="Papua New Guinea", own="Centralized", eco="Not classified", n=8, gdp="about 2%",
-         gr=dict(v="≈0%"), uz=dict(v="−0.3", st="alert")),
+         gr=dict(v="≈0%", d="coverage, size of economy"), uz=dict(v="−0.3", st="alert")),
 ]
 
 # Altman Z″ (emerging-market model without the 3.25 constant, Eidelman 1995)
@@ -125,11 +129,9 @@ INJ_CONST, INJ_SLOPE = 18.2, -0.767
 # External shocks: change in Z″ per unit of each shock
 SHOCK_DISASTER, SHOCK_FX = -0.23, -0.37
 
-# ILLUSTRATIVE calculator presets (hypothetical SOEs, not from the note)
+# Calculator starting values: the sample medians in the note's Table 1
 PRESETS = {
-    "median": dict(label="Sample median", x1=0.133, x2=0.108, x3=0.022, x4=1.61, assets=50.0),
-    "grey": dict(label="Grey zone", x1=0.05, x2=0.02, x3=0.01, x4=1.20, assets=50.0),
-    "distress": dict(label="Distress", x1=-0.10, x2=-0.30, x3=-0.05, x4=0.20, assets=50.0),
+    "median": dict(label="Reset to sample medians (Table 1)", x1=0.133, x2=0.108, x3=0.022, x4=1.61),
 }
 
 GLYPH = {"ok": "●", "watch": "▲", "alert": "■"}
@@ -325,6 +327,11 @@ tr.dim td {{ opacity: .35; }}
 .tl .rail::after {{ content: ""; position: absolute; left: 2px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: {SURFACE}; box-shadow: 0 0 0 2px {AXIS}; }}
 .tl li.hot .rail::after {{ background: {CRIT}; box-shadow: 0 0 0 2px {SURFACE}, 0 0 0 3px {CRIT}; }}
 .tl .what {{ padding-bottom: 14px; font-size: 13px; }}
+.recs {{ margin: 0; padding-left: 26px; list-style: lower-roman; font-size: 13.5px; }}
+div[data-testid="stMarkdownContainer"] ol.recs {{ padding-left: 26px; margin: 4px 0 0; }}
+div[data-testid="stMarkdownContainer"] ol.recs li {{ font-size: 13.5px; line-height: 1.55; padding-left: 4px; margin: 0 0 10px; }}
+.recs li::marker {{ color: {BLUE_STRONG}; font-weight: 700; }}
+.recs b {{ color: {NAVY}; }}
 
 .foot {{ margin-top: 30px; padding-top: 16px; border-top: 2px solid {NAVY}; color: {INK_2}; font-size: 12.5px; }}
 .foot h2 {{ color: {NAVY}; font-size: 14px; margin: 0 0 8px; padding: 0; }}
